@@ -1,0 +1,11 @@
+{
+  "name": "Copy Button Adder",
+  "version": "0.1",
+  "manifest_version": 3,
+  "description": "Adds a copy button.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {},
+  "background": {
+    "service_worker": "service-worker.js"
+  }
+}
