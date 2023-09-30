@@ -92,6 +92,37 @@ function addCopyButtons() {
   });
 }
 
+function createDropdown() {
+  var container = document.createElement("span");
+  container.title = "Number of blank pages to add after each question";
+  // Create a label for the dropdown
+  var label = document.createElement("label");
+  label.textContent = "Blank Pages: ";
+  label.style.position = "relative";
+  label.style.fontSize = "small";
+  label.style.top = "0px";
+  label.style.right = "opx";
+  label.style.right = "opx";
+
+  container.appendChild(label);
+
+  var dropdown = document.createElement("select");
+  for (var i = 0; i <= 5; i++) {
+    var option = document.createElement("option");
+    option.text = i;
+    option.value = i;
+    dropdown.appendChild(option);
+  }
+  dropdown.style.position = "relative";
+  dropdown.style.fontSize = "small";
+  dropdown.style.top = "0px";
+  dropdown.style.right = "opx";
+  dropdown.style.right = "opx";
+  dropdown.id = "blank-pages-dropdown";
+  container.appendChild(dropdown);
+  return container;
+}
+
 function wrapSelectedText() {
   var selection = window.getSelection().getRangeAt(0);
   var selectedText = selection.extractContents();
@@ -149,9 +180,12 @@ function injectPrintStyles() {
   var style = document.createElement("style");
   style.innerHTML = `
     @media print {
-      /* Avoid page breaks */
-      * {
-        break-after: avoid !important;
+      .page-break { 
+        page-break-after: always; 
+      }
+      .blank-page {
+        page-break-before: always;
+        content: "";
       }
     }
   `;
@@ -162,6 +196,10 @@ function addPrintGlobalButtion() {
   var titleElement = document.querySelector(".modules__content-head-title");
   var printButton = getButton("print_button", "Print Page");
   printButton.style.marginLeft = "5px";
+  var dropdown = createDropdown();
+  dropdown.value = "1";
+  dropdown.style.marginLeft = "5px";
+
   printButton.addEventListener("click", function () {
     const content = document.querySelector("html");
     const buttons = content.querySelectorAll("button");
@@ -181,10 +219,27 @@ function addPrintGlobalButtion() {
       element.classList.remove("custom-scrollbar");
       element.removeAttribute("style");
     });
+
     injectPrintStyles();
+    var dropdown = document.getElementById("blank-pages-dropdown");
+    var selectedValue = dropdown.value;
+    var questionRows = document.querySelectorAll(".gcb-question-row");
+    // Iterate through each div element and add a page break after it
+    questionRows.forEach(function (div) {
+      // Create a page break element (hr) and append it after the current div
+      div.classList.add("page-break");
+      // Add two additional page break divs for blank pages
+      for (var i = 0; i < selectedValue; i++) {
+        var blankPage = document.createElement("div");
+        blankPage.classList.add("page-break", "blank-page");
+        div.parentNode.insertBefore(blankPage, div.nextSibling);
+      }
+    });
+
     window.print();
     location.reload();
   });
+  titleElement.appendChild(dropdown);
   titleElement.appendChild(printButton);
 }
 
