@@ -92,8 +92,10 @@ function addCopyButtons() {
   });
 }
 
-function createDropdown() {
+function createDropdown(default_pages) {
+  default_pages = default_pages || 2; // Set your desired default value here
   var container = document.createElement("span");
+  container.id="drop-down-span"
   container.title = "Number of blank pages to add after each question";
   // Create a label for the dropdown
   var label = document.createElement("label");
@@ -119,6 +121,7 @@ function createDropdown() {
   dropdown.style.right = "opx";
   dropdown.style.right = "opx";
   dropdown.id = "blank-pages-dropdown";
+  dropdown.value = default_pages
   container.appendChild(dropdown);
   return container;
 }
@@ -187,6 +190,9 @@ function injectPrintStyles() {
         page-break-before: always;
         content: "";
       }
+      .print-image {
+        max-width: 100%;
+      }
     }
   `;
 
@@ -221,13 +227,20 @@ function addPrintGlobalButtion() {
     });
 
     injectPrintStyles();
-    var dropdown = document.getElementById("blank-pages-dropdown");
-    var selectedValue = dropdown.value;
+    var dropdown_span = document.getElementById("blank-pages-dropdown");
+    var selectedValue = dropdown_span.value;
     var questionRows = document.querySelectorAll(".gcb-question-row");
     // Iterate through each div element and add a page break after it
     questionRows.forEach(function (div) {
       // Create a page break element (hr) and append it after the current div
       div.classList.add("page-break");
+
+      // If it contains images, add the "print-image" class
+      var images = div.querySelectorAll("img");
+      images.forEach(function (img) {
+        img.classList.add("print-image")
+      });
+
       // Add two additional page break divs for blank pages
       for (var i = 0; i < selectedValue; i++) {
         var blankPage = document.createElement("div");
@@ -235,7 +248,7 @@ function addPrintGlobalButtion() {
         div.parentNode.insertBefore(blankPage, div.nextSibling);
       }
     });
-
+    dropdown.remove();
     window.print();
     location.reload();
   });
