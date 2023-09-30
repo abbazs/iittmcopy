@@ -260,5 +260,3 @@ addCopyButtons();
 addCopySelectedGlobalButtion();
 addHighlighter();
 addPrintGlobalButtion();
-
-// modules__content custom-scrollbar assignment
