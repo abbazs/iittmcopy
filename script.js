@@ -193,6 +193,10 @@ function injectPrintStyles() {
       .print-image {
         max-width: 100%;
       }
+      @page {
+        size: auto;
+        margin: 5mm;
+      }
     }
   `;
 
