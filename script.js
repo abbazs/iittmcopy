@@ -92,10 +92,22 @@ function addCopyButtons() {
   });
 }
 
+function createPageNumDiv() {
+  var pn = document.createElement("div");
+  pn.classList.add("page-number");
+  return pn;
+}
+
 function createDropdown(default_pages) {
+  var existingDropDowns = document.querySelectorAll('#drop-down-span');
+
+  // Remove existing button if found
+  existingDropDowns.forEach(function (edd) {
+    edd.parentNode.removeChild(edd);
+  });
   default_pages = default_pages || 2; // Set your desired default value here
   var container = document.createElement("span");
-  container.id="drop-down-span"
+  container.id = "drop-down-span"
   container.title = "Number of blank pages to add after each question";
   // Create a label for the dropdown
   var label = document.createElement("label");
@@ -179,6 +191,16 @@ function addHighlighter() {
   document.head.appendChild(style);
 }
 
+function addMeta() {
+  // Create a new CSP meta tag
+  var cspMetaTag = document.createElement('meta');
+  cspMetaTag.setAttribute('http-equiv', 'Content-Security-Policy');
+  cspMetaTag.setAttribute('content', "script-src 'self' 'wasm-unsafe-eval' 'inline-speculation-rules' http://localhost:* http://127.0.0.1:* https://apis.google.com;");
+
+  // Append the CSP meta tag to the document's head
+  document.head.appendChild(cspMetaTag);
+}
+
 function injectPrintStyles() {
   var style = document.createElement("style");
   style.innerHTML = `
@@ -193,11 +215,57 @@ function injectPrintStyles() {
       .print-image {
         max-width: 100%;
       }
+      /* Remove all headers and footers */
+      @page {
+        size: auto;
+        margin: 2mm;
+      }
+      /* Style for the page number container */
+      /* This is not yet functional */
+      .page-number {
+          position: absolute;
+          bottom: 0mm; /* Adjust the distance from the bottom */
+          right: 0mm; /* Adjust the distance from the right */
+          border: 1px solid lightgray; /* Light gray border */
+          padding: 2px;
+          font-family: monospace;
+          font-size: 8px;
+          background-color: white;
+      }
+      .a4-div {
+        width: 205mm;
+        height: 292mm;
+        border: 1px solid #000; /* Optional border for visualization */
+        position: relative; /* Make the container relative for absolute positioning */
+      }
     }
   `;
-
   document.head.appendChild(style);
 }
+
+// Function to add page numbers
+function addPageNumbers() {
+  /* This is not yet working as expected. */
+  var pageCount = 0;
+  
+  // Find all elements with class "page-break"
+  var pageBreaks = document.querySelectorAll('.page-break');
+  
+  // Iterate through the page-break elements
+  pageBreaks.forEach(function (pageBreak) {
+    pageCount++;
+    pageBreak.classList.add("a4-div")
+    // Create a div for the page number
+    var pageNumberDiv = document.createElement('div');
+    pageNumberDiv.classList.add('page-number');
+    pageNumberDiv.textContent = 'Page ' + pageCount;
+    
+    // Append the page number div after the page-break element
+    pageBreak.parentNode.insertBefore(pageNumberDiv, pageBreak.nextSibling);
+  });
+}
+
+
 function addPrintGlobalButtion() {
   var titleElement = document.querySelector(".modules__content-head-title");
   var printButton = getButton("print_button", "Print Page");
@@ -234,7 +302,6 @@ function addPrintGlobalButtion() {
     questionRows.forEach(function (div) {
       // Create a page break element (hr) and append it after the current div
       div.classList.add("page-break");
-
       // If it contains images, add the "print-image" class
       var images = div.querySelectorAll("img");
       images.forEach(function (img) {
