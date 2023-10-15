@@ -93,6 +93,11 @@ function addCopyButtons() {
 }
 
 function createDropdown(default_pages) {
+  var existing = document.querySelectorAll("#drop-down-span");
+  // Remove existing dropdowns if found
+  existing.forEach(function (e) {
+    e.parentNode.removeChild(e);
+  });
   default_pages = default_pages || 2; // Set your desired default value here
   var container = document.createElement("span");
   container.id="drop-down-span"
